@@ -1,0 +1,257 @@
+---
+title: "water_balance_greenhouse"
+author: "iael"
+date: "2024-01-07"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library("grid")
+library("tidyverse")
+library("lubridate")
+library("gridExtra")
+library("cowplot")
+library("readxl")
+library("ggpubr")
+library("rstatix")
+library("tidyr")
+library("multcompView")
+library("scales")
+library("dplyr")
+library("ggpattern")
+library("RColorBrewer")
+
+```
+
+
+
+```{r include=FALSE}
+raw_data <- read_excel("onion_analysis.xlsx", sheet = "data")
+dates<-colnames(raw_data)
+dates<-dates[6:length(dates)]
+date_object <- as.Date(as.numeric(dates), origin = "1899-12-30")
+
+irr_drain<-pivot_longer(raw_data, cols = 6:ncol(raw_data), names_to ="dateN",
+ values_to = "mlday")
+irr_drain$time<-as.Date(as.numeric(irr_drain$dateN), origin = "1899-12-30")
+irr_drain$TREATMENT<-as.factor(irr_drain$TREATMENT)
+irr_drain$Date <- as.POSIXct(irr_drain$time)
+irr_drain$N_level_p<-irr_drain$N_level*100
+
+
+raw_data_irr <- read_excel("onion_analysis.xlsx", sheet = "irrECN")
+raw_data_irr$Date <- as.POSIXct(raw_data_irr$date)
+raw_data_irr$treatment<-as.factor(raw_data_irr$treatment)
+raw_data_irr$N_level_p<-as.factor(as.numeric(raw_data_irr$Nlevel)*100)
+raw_data_irr$Nlevel<-as.factor(raw_data_irr$Nlevel)
+raw_data_irr$targetEC.n<-as.factor(raw_data_irr$targetEC)
+
+raw_data_drainN <- read_excel("onion_analysis.xlsx", sheet = "drainN")
+dates<-colnames(raw_data_drainN)
+dates<-dates[6:length(dates)] #not sure if 5 or 6
+date_object <- as.Date(as.numeric(dates), origin = "1899-12-30")
+#### here working on this data!!!!!
+drainN<-pivot_longer(raw_data_drainN, cols = 6:ncol(raw_data_drainN), names_to ="dateN",
+ values_to = "drainN_NO3mgl")
+drainN$time<-as.Date(as.numeric(drainN$dateN), origin = "1899-12-30")
+drainN$TREATMENT<-as.factor(drainN$TREATMENT)
+drainN$Date <- as.POSIXct(drainN$time)
+drainN$N_level_p<-drainN$N_level*100
+
+raw_data_drainEC <- read_excel("onion_analysis.xlsx", sheet = "drainEC")
+dates<-colnames(raw_data_drainEC)
+dates<-dates[6:length(dates)] #not sure if 5 or 6
+date_object <- as.Date(as.numeric(dates), origin = "1899-12-30")
+#### here working on this data!!!!!
+drainEC<-pivot_longer(raw_data_drainEC, cols = 6:ncol(raw_data_drainEC), names_to ="dateN",
+ values_to = "drainEC")
+drainEC$time<-as.Date(as.numeric(drainEC$dateN), origin = "1899-12-30")
+drainEC$Date <- as.POSIXct(drainEC$time)
+
+drainEC$TREATMENT<-as.factor(drainEC$TREATMENT)
+drainEC$N_level_p<-drainEC$N_level*100
+
+
+#join drainEC and drainN so that we can analyze them together 
+drain_NEC<-full_join(drainN,drainEC,by=c("Date","TREATMENT","EC","N_level","Bucket #","code","dateN","time","N_level_p"))
+
+
+drain_NEC_avg <- drain_NEC %>%                         # Aggregate data
+  group_by(Date, TREATMENT) %>% 
+  dplyr::summarize(drainN_NO3mgl = mean(drainN_NO3mgl),drainEC=mean(drainEC),N_level_p=mean(N_level_p),EC=mean(EC)) %>% 
+  as.data.frame()
+drain_NEC_avg<-na.omit(drain_NEC_avg)
+
+
+
+u_date<-unique(irr_drain$time)
+
+irr_drain_avg <- irr_drain %>%                         # Aggregate data
+  group_by(Date, code, TREATMENT) %>% 
+  dplyr::summarize(mlday = mean(mlday),N_level=mean(N_level_p),EC=mean(EC)) %>% 
+  as.data.frame()
+irr_drain_avg$N_level<-as.factor(irr_drain_avg$N_level)
+irr_drain_avg$EC<-as.factor(irr_drain_avg$EC)
+
+  irr<-filter(irr_drain_avg, code=="i")
+drain<-filter(irr_drain_avg, code=="d")
+irr <- irr[order(irr$Date, irr$TREATMENT), ]
+drain <- drain[order(drain$Date, drain$TREATMENT), ]
+ET<-irr$Date
+ET$TREATMENT<-irr$TREATMENT
+
+drain$ET<-irr$mlday-drain$mlday
+as.data.frame(ET)
+
+
+
+
+```
+
+# Plots
+
+
+```{r echo=FALSE, message=F, fig.cap="Irrigation and drainage", warning=F}
+ggplot(data=irr_drain_avg)+
+  geom_point(aes(x=Date, y=mlday, color=TREATMENT,shape=code))+
+  scale_x_datetime(labels = date_format("%d-%m-%y"),breaks = date_breaks("1 months"))+  theme_bw()
+```
+
+```{r }
+
+
+
+ggplot(data=irr_drain_avg)+
+  geom_point(aes(x=Date, y=mlday, color=TREATMENT,shape=code))+
+  scale_x_datetime(labels = date_format("%d-%m-%y"),breaks = date_breaks("1 months"))+  theme_bw() 
+
+ggplot(data=drain)+
+  geom_point(aes(x=Date, y=mlday, color=TREATMENT))+
+    geom_point(aes(x=Date, y=ET, color=TREATMENT),shape=6)+
+  scale_x_datetime(labels = date_format("%d-%m-%y"),breaks = date_breaks("1 months"))+  theme_bw()+
+geom_point(data=irr,aes(x=Date, y=mlday),color="black")
+
+
+ggplot(data=drain)+
+ geom_point(aes(x=Date, y=mlday, color=N_level, shape=EC))+
+  geom_point(data=irr,aes(x=Date, y=mlday),color="black", shape = 3)+
+  scale_x_datetime(labels = date_format("%d-%m-%y"),breaks = date_breaks("1 months"))+  theme_bw()+
+  labs(y= "Irrigation and Drainage (ml/day)",color="N level (%)",shape="EC (dS/m)")
+ggsave("Irr_Drain.png")
+```
+
+```{r }
+drain_irrET<-full_join(drain,irr,by=c("Date","TREATMENT","EC","N_level"))
+
+ggplot(data=drain_irrET)+
+geom_point(aes(x=Date, y=ET, color=N_level, shape=EC))+
+geom_point(aes(x=Date, y=mlday.y,fill = "Irrigation"),shape = 1)+
+scale_x_datetime(labels = date_format("%d-%m-%y"),breaks = date_breaks("1 months"))+  theme_bw()+
+#scale_y_continuous(limits = c(0, 700))
+  #geom_point(data=irr,aes(x=Date, y=mlday),color="black", shape = 1)+
+  labs(y= "Irrigation and Evapotranspiration (ml/day)", fill = "Irrigation", shape="ET by EC (dS/m)",color="ET by N level (%)")
+ggsave("ET_irr.png")
+
+```
+
+```{r }
+
+# this is the plot of ET as a function of N level as bars for each EC treatment
+# we can make it also with points and make a non-linear model
+# we should also make it with the total seasonal ET and not only with one date. I used only
+# one date, (the last one right now) because it was the first one to show differences.
+
+filtered_d <- drain %>%
+  filter(Date %in% c("2024-01-21"))
+
+ggplot(data=filtered_d,aes( y=ET, x=N_level, fill=EC))+
+  geom_col(position = "dodge", width = 0.7) +
+  labs(fill = "EC") +
+  theme_minimal()
+  geom_col()
+ ggsave("ET_bar.png")
+
+ 
+ # filtered_d_i <-irr_drain%>%
+ # filter(code %in% "d")
+ # filtered_d_i <- filtered_d_i %>%
+ #  filter(Date %in% c("2024-01-14"))
+ # 
+ # ggplot(data=filtered_d_i,aes( y=mlday, x=TREATMENT))+
+ #  geom_col(position = "dodge", width = 0.7) +
+ #    stat_summary(fun.data = "mean_se", geom = "errorbar", width = 0.2)+
+ #   theme_minimal()
+ # ggsave("drain_bar.png")
+
+```
+
+
+# plots for the irrigation part
+```{r }
+irrFilter<- raw_data_irr %>%
+  filter(targetEC %in% c("0.9", "4"))
+ggplot(data=irrFilter)+
+ geom_point(aes(x=Date, y=Nmgl_irr, color=N_level_p))+
+   geom_line(aes(x=Date, y=Nmgl_irr, color=N_level_p, linetype=targetEC.n ))+
+  #geom_point(data=irr,aes(x=Date, y=mlday),color="black", shape = 3)+
+  scale_x_datetime(limits = c(as.POSIXct("2023-09-01"), as.POSIXct("2023-12-31")),labels = date_format("%d-%m-%y"),breaks = date_breaks("1 months"))+  theme_bw()+
+  labs(y= "Irrigation N Concentration (mg/l)",color="N level (%)", linetype="EC (dS/m)")
+ggsave("Irr_N.png")
+
+ggplot(data=raw_data_irr)+
+ geom_point(aes(x=targetN_irr, y=Nmgl_irr))
+ggsave("targetN.png")
+
+ggplot(data=raw_data_irr)+
+ geom_point(aes(x=targetEC, y=Ecirr))
+ggsave("targetEC.png")
+```
+# plots for the drainage quality
+```{r }
+# irrFilter<- raw_data_irr %>%
+#   filter(targetEC %in% c("0.9", "4"))
+drainEC$N_level_p<-as.factor(drainEC$N_level_p)
+drainEC$EC<-as.factor(drainEC$EC)
+drainN$N_level_p<-as.factor(drainN$N_level_p)
+drainN$EC<-as.factor(drainN$EC)
+drain_NEC_avg$EC<-as.factor(drain_NEC_avg$EC)
+drain_NEC_avg$N_level_p<-as.factor(drain_NEC_avg$N_level_p)
+```
+
+```{r }
+
+ggplot(data=drain_NEC_avg)+
+ geom_point(aes(x=Date, y=drainEC, color=N_level_p,shape=EC))+
+     scale_x_datetime(limits = c(as.POSIXct("2023-09-01"), as.POSIXct("2023-12-31")),labels = date_format("%d-%m-%y"),breaks = date_breaks("1 months"))+  theme_bw()+
+  facet_wrap(~N_level_p)+
+  labs(y= "Drainage EC (dS/m)",color="N level (%)", shape="EC (dS/m)")
+#ggsave("Drain_EC.png")
+
+
+ggplot(data=drain_NEC)+
+ geom_smooth(aes(x=Date, y=drainEC, color=TREATMENT))+
+     scale_x_datetime(limits = c(as.POSIXct("2023-09-01"), as.POSIXct("2023-12-31")),labels = date_format("%d-%m-%y"),breaks = date_breaks("1 months"))+  theme_bw()+
+   labs(y= "Drainage EC (dS/m)",color="N level (%)", shape="EC (dS/m)")
+
+
+ggplot(data=filter(drain_NEC, drainN_NO3mgl<700))+
+ geom_smooth(aes(x=Date, y=drainN_NO3mgl, color=TREATMENT))+
+     scale_x_datetime(limits = c(as.POSIXct("2023-09-01"), as.POSIXct("2023-12-31")),labels = date_format("%d-%m-%y"),breaks = date_breaks("1 months"))+  theme_bw()+
+  scale_y_continuous(limits = c(0, 300))+
+  #facet_wrap(~N_level_p)+
+  labs(y= "Drainage N-NO3 Concentration (mg/l)",color="N level (%)", shape="EC (dS/m)")
+#ggsave("Drain_N.png")
+
+
+ggplot(data=drain_NEC_avg)+
+ geom_point(aes(x=Date, y=drainEC, color=TREATMENT))+
+     scale_x_datetime(limits = c(as.POSIXct("2023-09-01"), as.POSIXct("2023-12-31")),labels = date_format("%d-%m-%y"),breaks = date_breaks("1 months"))+  theme_bw()+
+  facet_wrap(~N_level_p)+
+  labs(y= "Drainage EC (dS/m)",color="N level (%)", shape="EC (dS/m)")
+
+ggplot(data=drain_NEC_avg)+
+ geom_point(aes(x=Date, y=drainN_NO3mgl, color=TREATMENT))+
+     scale_x_datetime(limits = c(as.POSIXct("2023-09-01"), as.POSIXct("2023-12-31")),labels = date_format("%d-%m-%y"),breaks = date_breaks("1 months"))+  theme_bw()
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

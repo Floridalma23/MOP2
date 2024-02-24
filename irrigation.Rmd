@@ -1,0 +1,80 @@
+---
+title: "N_salinity"
+author: "iael"
+date: "2023-12-28"
+output: html_document
+---
+
+```{r }
+library("grid")
+library("tidyverse")
+library("lubridate")
+library("gridExtra")
+library("cowplot")
+library("readxl")
+library("ggpubr")
+library("rstatix")
+library("tidyr")
+library("multcompView")
+library("scales")
+library("dplyr")
+library("ggpattern")
+
+```
+
+## R Markdown
+
+```{r }
+
+irrigation <- read.csv(                 "C:/Users/iaelr/Dropbox/Greenhouse_R&D/DataLogger/CR1000XSeries_NSalinity_remote_Irrigation.csv", header=TRUE, stringsAsFactors=FALSE)
+
+labels<-c("flag_irr.1.","flag_irr.2.","flag_irr.3.","flag_irr.4.","flag_irr.5.","flag_irr.6.","flag_irr.7.","flag_irr.8.","flag_irr.9.","flag_irr.10.","flag_irr.11.","flag_irr.12.")
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+
+
+t1<-irrigation[2:nrow(irrigation), ]
+t0<-irrigation[1:nrow(irrigation)-1, ]
+
+f1<-c()
+f1$time<-t0$TIMESTAMP
+f1$c1<-t1$flag_irr.1.-t0$flag_irr.1.
+f1$c2<-t1$flag_irr.2.-t0$flag_irr.2.
+f1$c3<-t1$flag_irr.3.-t0$flag_irr.3.
+f1$c4<-t1$flag_irr.4.-t0$flag_irr.4.
+f1$c5<-t1$flag_irr.5.-t0$flag_irr.5.
+f1$c6<-t1$flag_irr.6.-t0$flag_irr.6.
+f1$c7<-t1$flag_irr.7.-t0$flag_irr.7.
+f1$c8<-t1$flag_irr.8.-t0$flag_irr.8.
+f1$c9<-t1$flag_irr.9.-t0$flag_irr.9.
+f1$c10<-t1$flag_irr.10.-t0$flag_irr.10.
+f1$c11<-t1$flag_irr.11.-t0$flag_irr.11.
+f1$c12<-t1$flag_irr.12.-t0$flag_irr.12.
+
+f1<-as.data.frame(f1)
+
+f1_long<-pivot_longer(f1, cols = 2:13, names_to ="tap",
+ values_to = "codes")
+taps<- c("c1","c2","c3","c4","c5","c6","c7","c8","c9","c10","c11",
+"c12")
+# for i=1
+i<-2
+irr_i <- f1_long %>%
+  filter(tap %in% taps[i] & codes==1)
+
+irr_f<- f1_long %>%
+  filter(tap %in% taps[i] & codes==-1)
+
+irr_ft<-irr_f$time[1:68]
+irr_it<-irr_i$time
+dt<-irr_ft-irr_it
+irrT<-dt*24*60
+print(irrT)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
