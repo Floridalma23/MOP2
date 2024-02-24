@@ -20,7 +20,8 @@ library("scales")
 library("dplyr")
 library("ggpattern")
 library("RColorBrewer")
-
+library(agricolae)
+library(jtools)
 ```
 
 
@@ -254,12 +255,10 @@ ggplot(data=drain_NEC_avg)+
      scale_x_datetime(limits = c(as.POSIXct("2023-09-01"), as.POSIXct("2023-12-31")),labels = date_format("%d-%m-%y"),breaks = date_breaks("1 months"))+  theme_bw()
 ```
 
-#Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
 
-#-----------------------------
 
-loadfonts(device = "win")
 
+```{r}
 data_1 <- read_excel("eoso.xlsx",sheet = "07022024")
 
 labels <- read_excel("eoso.xlsx",sheet = "labels")
@@ -271,6 +270,8 @@ data_long <- data_1 |>
     names_to = "Variable",
     values_to = "Value"
   )
+
+data_1$treatment <- factor(data_1$treatment, levels = c(1,2,3,4,5,6,7,8,9,10,11,12))
 variables <- unique(data_long$Variable)
 
 stats_vars <- data_long |>
@@ -287,7 +288,7 @@ stats_vars <- data_long |>
 
 
 groups <- data.frame(
-  treatment = 0,
+  treatment = "x",
   Variable = "x",
   groups = "x"
 )
@@ -317,7 +318,7 @@ for(i in seq_along(variables)){
     filter(Variable == variables[i])
   stats_vars_filtrados <- stats_vars |>
     filter(Variable == variables[i])
-    stats_vars_filtrados$treatmentC <- as.numeric(stats_vars_filtrados$treatment) 
+  stats_vars_filtrados$treatment <- factor(stats_vars_filtrados$treatment, levels = c(1,2,3,4,5,6,7,8,9,10,11,12))
   name1 <- paste0("graphics/all/",variables[i],"_box.png")
   name3 <- paste0("graphics/all/",variables[i],"_bars.png")
   label <- paste0(labels[i,2])
@@ -328,7 +329,10 @@ for(i in seq_along(variables)){
     theme(
       legend.position = "bottom"
     )
-  grapchic3 <- ggplot(stats_vars_filtrados, aes(x = treatmentC, Mean)) +
+  maximum0 = 1.1*(max(df$Value, na.rm = T))
+  graphic1 <- graphic1 + geom_text(data = stats_vars_filtrados, aes(x = treatment, y = maximum0, label = groups),
+                                   position = position_dodge(width = .75))
+  grapchic3 <- ggplot(stats_vars_filtrados, aes(x = treatment, Mean)) +
     geom_bar(position=position_dodge(), stat="identity") +
     geom_errorbar(aes(ymin=Min, ymax=Max),
                   width=.3,
@@ -347,6 +351,8 @@ for(i in seq_along(variables)){
   ggsave(name3, graphic3, width = 8, height = 4)
 }
 writexl::write_xlsx(x = stats_vars, "stats_all.xlsx")
+
+```
 
 
 
