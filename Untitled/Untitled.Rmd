@@ -1,0 +1,101 @@
+---
+title: Generate Reproducible & Live HTML and PDF Conference Posters Using RMarkdown
+author:
+  - name: Floridalma Miguel
+    affil: 1
+  - name: Another G. Author
+    affil: 2
+affiliation:
+  - num: 1
+    address: EARTH University
+  - num: 2
+    address: 
+column_numbers: 3
+logoright_name: logo_EARTH_blanco.png
+logoleft_name: logo_EARTH_blanco.png
+output: 
+  posterdown::posterdown_html:
+    self_contained: true
+bibliography: packages.bib
+knit: pagedown::chrome_print
+primary_colour: "#f37321"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+# Introduction
+
+
+## Objectives
+
+
+
+# Methods
+
+
+
+# Results
+
+
+## Nitrogen 
+
+```{r nitr-irr, out.width='50%', fig.cap='Nitrogen irrigation', fig.align='center'}
+
+knitr::include_graphics("g7.png")
+```
+
+```{r nitr-dra, out.width='50%', fig.cap='Nitrogen drainage', fig.align='center'}
+
+knitr::include_graphics("g12.png")
+```
+
+## Electrical conductivity
+
+```{r ec-irr, out.width='50%', fig.cap='Electrical Conductivity irrigation', fig.align='center'}
+
+knitr::include_graphics("g9.png")
+```
+
+
+```{r ec-dra, out.width='50%', fig.cap='Electrical Conductivity drainage', fig.align='center'}
+
+knitr::include_graphics("g11.png")
+```
+
+```{r ec-dra-nlev, out.width='50%', fig.cap='Electrical Conductivity drainage by N level', fig.align='center'}
+
+knitr::include_graphics("g10.png")
+```
+
+## Weight
+
+```{r lw, out.width='50%', fig.cap='Leaves Weight', fig.align='center'}
+
+knitr::include_graphics("lw_box.png")
+```
+
+```{r ow, out.width='50%', fig.cap='Onions Weight', fig.align='center'}
+
+knitr::include_graphics("ow_box.png")
+```
+
+```{r wpw, out.width='50%', fig.cap='Whole Plant Weight', fig.align='center'}
+
+knitr::include_graphics("wpw_box.png")
+```
+
+# Next Steps
+
+
+
+# Conclusion
+
+Try `posterdown` out! Hopefully you like it!
+
+```{r, include=FALSE}
+knitr::write_bib(c('knitr','rmarkdown','posterdown','pagedown'), 'packages.bib')
+```
+
+# References

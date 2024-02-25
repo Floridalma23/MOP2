@@ -113,44 +113,53 @@ as.data.frame(ET)
 
 
 ```{r echo=FALSE, message=F, fig.cap="Irrigation and drainage", warning=F}
-ggplot(data=irr_drain_avg)+
+g1 <- ggplot(data=irr_drain_avg)+
   geom_point(aes(x=Date, y=mlday, color=TREATMENT,shape=code))+
   scale_x_datetime(labels = date_format("%d-%m-%y"),breaks = date_breaks("1 months"))+  theme_bw()
+g1
+ggsave("graphics/g1.png", g1, width = 6, height = 6)
 ```
 
 ```{r }
 
 
 
-ggplot(data=irr_drain_avg)+
+g2 <- ggplot(data=irr_drain_avg)+
   geom_point(aes(x=Date, y=mlday, color=TREATMENT,shape=code))+
   scale_x_datetime(labels = date_format("%d-%m-%y"),breaks = date_breaks("1 months"))+  theme_bw() 
+g2
+ggsave("graphics/g2.png", g2, width = 6, height = 6)
 
-ggplot(data=drain)+
+g3 <- ggplot(data=drain)+
   geom_point(aes(x=Date, y=mlday, color=TREATMENT))+
     geom_point(aes(x=Date, y=ET, color=TREATMENT),shape=6)+
   scale_x_datetime(labels = date_format("%d-%m-%y"),breaks = date_breaks("1 months"))+  theme_bw()+
 geom_point(data=irr,aes(x=Date, y=mlday),color="black")
+g3
+ggsave("graphics/g3.png", g3, width = 6, height = 6)
 
-
-ggplot(data=drain)+
+g4 <- ggplot(data=drain)+
  geom_point(aes(x=Date, y=mlday, color=N_level, shape=EC))+
   geom_point(data=irr,aes(x=Date, y=mlday),color="black", shape = 3)+
   scale_x_datetime(labels = date_format("%d-%m-%y"),breaks = date_breaks("1 months"))+  theme_bw()+
   labs(y= "Irrigation and Drainage (ml/day)",color="N level (%)",shape="EC (dS/m)")
+g4
+ggsave("graphics/g4.png", g4, width = 6, height = 6)
 ggsave("Irr_Drain.png")
 ```
 
 ```{r }
 drain_irrET<-full_join(drain,irr,by=c("Date","TREATMENT","EC","N_level"))
 
-ggplot(data=drain_irrET)+
+g5 <- ggplot(data=drain_irrET)+
 geom_point(aes(x=Date, y=ET, color=N_level, shape=EC))+
 geom_point(aes(x=Date, y=mlday.y,fill = "Irrigation"),shape = 1)+
 scale_x_datetime(labels = date_format("%d-%m-%y"),breaks = date_breaks("1 months"))+  theme_bw()+
 #scale_y_continuous(limits = c(0, 700))
   #geom_point(data=irr,aes(x=Date, y=mlday),color="black", shape = 1)+
   labs(y= "Irrigation and Evapotranspiration (ml/day)", fill = "Irrigation", shape="ET by EC (dS/m)",color="ET by N level (%)")
+g5
+ggsave("graphics/g5.png", g5, width = 6, height = 6)
 ggsave("ET_irr.png")
 
 ```
@@ -165,13 +174,14 @@ ggsave("ET_irr.png")
 filtered_d <- drain %>%
   filter(Date %in% c("2024-01-21"))
 
-ggplot(data=filtered_d,aes( y=ET, x=N_level, fill=EC))+
+g6 <- ggplot(data=filtered_d,aes( y=ET, x=N_level, fill=EC))+
   geom_col(position = "dodge", width = 0.7) +
   labs(fill = "EC") +
   theme_minimal()
   geom_col()
  ggsave("ET_bar.png")
-
+g6
+ggsave("graphics/g6.png", g6, width = 6, height = 6)
  
  # filtered_d_i <-irr_drain%>%
  # filter(code %in% "d")
@@ -191,21 +201,28 @@ ggplot(data=filtered_d,aes( y=ET, x=N_level, fill=EC))+
 ```{r }
 irrFilter<- raw_data_irr %>%
   filter(targetEC %in% c("0.9", "4"))
-ggplot(data=irrFilter)+
+g7 <- ggplot(data=irrFilter)+
  geom_point(aes(x=Date, y=Nmgl_irr, color=N_level_p))+
    geom_line(aes(x=Date, y=Nmgl_irr, color=N_level_p, linetype=targetEC.n ))+
   #geom_point(data=irr,aes(x=Date, y=mlday),color="black", shape = 3)+
   scale_x_datetime(limits = c(as.POSIXct("2023-09-01"), as.POSIXct("2023-12-31")),labels = date_format("%d-%m-%y"),breaks = date_breaks("1 months"))+  theme_bw()+
   labs(y= "Irrigation N Concentration (mg/l)",color="N level (%)", linetype="EC (dS/m)")
 ggsave("Irr_N.png")
+g7
+ggsave("graphics/g7.png", g7, width = 6, height = 6)
 
-ggplot(data=raw_data_irr)+
+g8 <- ggplot(data=raw_data_irr)+
  geom_point(aes(x=targetN_irr, y=Nmgl_irr))
 ggsave("targetN.png")
+g8
+ggsave("graphics/g8.png", g8, width = 6, height = 6)
 
-ggplot(data=raw_data_irr)+
- geom_point(aes(x=targetEC, y=Ecirr))
+g9 <- ggplot(data=raw_data_irr)+
+ geom_point(aes(x=targetEC, y=Ecirr)) +
+  theme_bw()
 ggsave("targetEC.png")
+g9
+ggsave("graphics/g9.png", g9, width = 6, height = 6)
 ```
 # plots for the drainage quality
 ```{r }
@@ -221,38 +238,46 @@ drain_NEC_avg$N_level_p<-as.factor(drain_NEC_avg$N_level_p)
 
 ```{r }
 
-ggplot(data=drain_NEC_avg)+
+g10 <- ggplot(data=drain_NEC_avg)+
  geom_point(aes(x=Date, y=drainEC, color=N_level_p,shape=EC))+
      scale_x_datetime(limits = c(as.POSIXct("2023-09-01"), as.POSIXct("2023-12-31")),labels = date_format("%d-%m-%y"),breaks = date_breaks("1 months"))+  theme_bw()+
   facet_wrap(~N_level_p)+
   labs(y= "Drainage EC (dS/m)",color="N level (%)", shape="EC (dS/m)")
 #ggsave("Drain_EC.png")
+g10
+ggsave("graphics/g10.png", g10, width = 6, height = 6)
 
 
-ggplot(data=drain_NEC)+
+g11 <- ggplot(data=drain_NEC)+
  geom_smooth(aes(x=Date, y=drainEC, color=TREATMENT))+
      scale_x_datetime(limits = c(as.POSIXct("2023-09-01"), as.POSIXct("2023-12-31")),labels = date_format("%d-%m-%y"),breaks = date_breaks("1 months"))+  theme_bw()+
    labs(y= "Drainage EC (dS/m)",color="N level (%)", shape="EC (dS/m)")
+g11
+ggsave("graphics/g11.png", g11, width = 6, height = 6)
 
-
-ggplot(data=filter(drain_NEC, drainN_NO3mgl<700))+
+g12 <- ggplot(data=filter(drain_NEC, drainN_NO3mgl<700))+
  geom_smooth(aes(x=Date, y=drainN_NO3mgl, color=TREATMENT))+
      scale_x_datetime(limits = c(as.POSIXct("2023-09-01"), as.POSIXct("2023-12-31")),labels = date_format("%d-%m-%y"),breaks = date_breaks("1 months"))+  theme_bw()+
   scale_y_continuous(limits = c(0, 300))+
   #facet_wrap(~N_level_p)+
   labs(y= "Drainage N-NO3 Concentration (mg/l)",color="N level (%)", shape="EC (dS/m)")
 #ggsave("Drain_N.png")
+g12
+ggsave("graphics/g12.png", g1, width = 6, height = 6)
 
-
-ggplot(data=drain_NEC_avg)+
+g13 <- ggplot(data=drain_NEC_avg)+
  geom_point(aes(x=Date, y=drainEC, color=TREATMENT))+
      scale_x_datetime(limits = c(as.POSIXct("2023-09-01"), as.POSIXct("2023-12-31")),labels = date_format("%d-%m-%y"),breaks = date_breaks("1 months"))+  theme_bw()+
   facet_wrap(~N_level_p)+
   labs(y= "Drainage EC (dS/m)",color="N level (%)", shape="EC (dS/m)")
+g13
+ggsave("graphics/g13.png", g13, width = 6, height = 6)
 
-ggplot(data=drain_NEC_avg)+
+g14 <- ggplot(data=drain_NEC_avg)+
  geom_point(aes(x=Date, y=drainN_NO3mgl, color=TREATMENT))+
      scale_x_datetime(limits = c(as.POSIXct("2023-09-01"), as.POSIXct("2023-12-31")),labels = date_format("%d-%m-%y"),breaks = date_breaks("1 months"))+  theme_bw()
+g14
+ggsave("graphics/g14.png", g14, width = 6, height = 6)
 ```
 
 
