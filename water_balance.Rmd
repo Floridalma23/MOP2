@@ -379,6 +379,29 @@ writexl::write_xlsx(x = stats_vars, "stats_all.xlsx")
 
 ```
 
+```{r}
+data_2  <- read_excel("eoso.xlsx",sheet = "newd")
+
+data_2 <- data_2 |>
+  filter(type == "whole")
+data_2$treatment <- factor(data_2$treatment, levels = c(1,2,3,4,5,6,7,8,9,10,11,12))
+data_1_2 <- data_1 |>
+  select(c(1:6))
+
+data_3 <- left_join(data_1_2, data_2, by = c("treatment","n_level"))
+
+data_3 <- data_3 |>
+  mutate(
+    DOW = DM*wpw/100,
+    NWO = DOW*N/100
+  ) |>
+  drop_na()
+
+drain2 <- drain |>
+  mutate(
+    Measurement = as.numeric(factor(Date))
+  )
+```
 
 
 
