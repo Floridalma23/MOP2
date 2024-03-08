@@ -380,27 +380,114 @@ writexl::write_xlsx(x = stats_vars, "stats_all.xlsx")
 ```
 
 ```{r}
-data_2  <- read_excel("eoso.xlsx",sheet = "newd")
+data_2  <- read_excel("eoso.xlsx",sheet = "lw")
 
-data_2 <- data_2 |>
-  filter(type == "whole")
-data_2$treatment <- factor(data_2$treatment, levels = c(1,2,3,4,5,6,7,8,9,10,11,12))
-data_1_2 <- data_1 |>
-  select(c(1:6))
+data_3  <- read_excel("eoso.xlsx",sheet = "ow")
 
-data_3 <- left_join(data_1_2, data_2, by = c("treatment","n_level"))
+summ_data_1 <- data_1 |>
+  group_by(treatment, n_level) |>
+  summarise_at(
+    vars(wpw,ow,lw), 
+    mean, 
+    na.rm = T
+  )
+
+ow <- summ_data_1 |>
+  select(treatment,n_level,ow)
 
 data_3 <- data_3 |>
-  mutate(
-    DOW = DM*wpw/100,
-    NWO = DOW*N/100
-  ) |>
-  drop_na()
+  select(-type)
 
-drain2 <- drain |>
+ow <- left_join(data_3, ow)
+
+lw <- summ_data_1 |>
+  select(treatment,n_level,lw)
+
+data_2 <- data_2 |>
+  select(-type)
+
+lw <- left_join(data_2, lw)
+
+ow <- ow |>
   mutate(
-    Measurement = as.numeric(factor(Date))
+    DOW = ow*DM/100,
+    NO = DOW*N/100
   )
+
+lw <- lw |>
+  mutate(
+    DLW = lw*DM/100,
+    NL = DLW*N/100
+  )
+
+data_4 <- drain_irrET |>
+  select(Date, TREATMENT, N_level, ET) |>
+  rename(
+    treatment = TREATMENT, 
+    n_level = N_level
+  ) |>
+  drop_na() |>
+  mutate(
+    n_level = case_when(n_level == 1 ~ 0,
+                        n_level == 2 ~ 0.25,
+                        n_level == 3 ~ 0.50,
+                        n_level == 4 ~ 0.75,
+                        n_level == 5 ~ 1,
+                        n_level == 6 ~ 1.25)
+  ) 
+
+data_4$treatment <- as.numeric(data_4$treatment)
+
+
+summ_data_4 <- data_4 |>
+  select(-Date) |>
+  group_by(treatment, n_level) |>
+  summarise(
+    ET = mean(ET)
+
+  )
+
+ow <- left_join(ow, summ_data_4)
+
+ow <- ow |>
+  mutate(
+    EC = if_else(treatment <= 6, "0.9", "4")
+  )
+
+ggplot(ow, aes(x = n_level, y = ET, col = EC )) +
+  geom_point() +
+  geom_line() +
+  theme_apa() +
+  labs(x = "", y = "")
+
+ggplot(ow, aes(x = n_level, y = NO, col = EC )) +
+  geom_point() +
+  geom_line() +
+  theme_apa() +
+  labs(x = "", y = "")
+
+
+lw <- left_join(lw, summ_data_4)
+
+lw <- lw |>
+  mutate(
+    EC = if_else(treatment <= 6, "0.9", "4")
+  )
+
+ggplot(lw, aes(x = n_level, y = ET, col = EC )) +
+  geom_point() +
+  geom_line() +
+  theme_apa() +
+  labs(x = "", y = "")
+
+
+ggplot(lw, aes(x = n_level, y = NL, col = EC )) +
+  geom_point() +
+  geom_line() +
+  theme_apa() +
+  labs(x = "", y = "")
+
+
 ```
 
 
