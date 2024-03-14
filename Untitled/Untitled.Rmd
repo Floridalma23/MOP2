@@ -1,42 +1,66 @@
 ---
-title: Generate Reproducible & Live HTML and PDF Conference Posters Using RMarkdown
+title: Evaluación del efecto de las interacciones entre dos niveles diferentes de salinización del agua de riego y seis concentraciones diferentes de fertilización con nitrógeno en el cultivo de cebolla (*Allium cepa*) 
 author:
   - name: Floridalma Miguel
+    affil: 1, 5
+  - name: Alon Ben-Gal
+    affil: 2, 3
+  - name: Oded Friedman
+    affil: 4
+  - name: Daryl Gillet
+    affil: 5
+  - name: Oswaldo Navarrete
     affil: 1
-  - name: Another G. Author
-    affil: 2
+  - name: Iael Raij-Hoffman
+    affil: 5
 affiliation:
   - num: 1
     address: EARTH University
   - num: 2
-    address: 
+    address: Gilat Research Center
+  - num: 3
+    address: Agricultural Research Center, Israel
+  - num: 4
+    address: Shaham, Ministerio de Agricultura, Israel
+  - num: 5
+    address: Southern Arava R&D
+    
 column_numbers: 3
 logoright_name: logo_EARTH_blanco.png
 logoleft_name: logo_EARTH_blanco.png
+language: es.yml
 output: 
   posterdown::posterdown_html:
-    self_contained: true
+    self_contained: no
+  language:
+    label:
+      fig: "Figura"
 bibliography: packages.bib
 knit: pagedown::chrome_print
 primary_colour: "#f37321"
+title_textsize: 65pt
+author_textsize: 40pt
+affiliation_textsize: 35pt
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
-# Introduction
+# Introducción
+
+La absorción de nutrientes en las plantas depende de la calidad del agua y la salinidad, factores clave para la producción de cultivos. La escasez de agua dulce en Israel ha llevado a los agricultores a utilizar diversas fuentes, como aguas residuales recicladas y aguas subterráneas salinas. En estas regiones áridas y semiáridas, más del 50% del agua de riego proviene de efluentes con altas concentraciones de sales (Kaner et al., 2017; Yasuor et al., 2020). 
+
+El riego con agua salina limita la actividad radicular de las plantas (Yasuor et al., 2020). En esta región, el agua de riego proviene de recursos subterráneos, los cuales presentan signos de degradación debido al aumento de la concentración de nitrato ($NO^{3−}$) (Oren et al., 2004). Esto cuestiona los protocolos de fertilización empleados por los productores locales. 
+
+Esta investigación busca analizar la variación en el consumo y la eficiencia de absorción de 6 niveles de nitrógeno en dos condiciones de salinidad del agua de riego (EC 0.9 y 4 dS/m). La construcción de curvas de absorción de nitrógeno según la salinidad facilitará el desarrollo de protocolos de fertilización en la región del desierto de Arava, Israel. 
 
 
-## Objectives
+# Metodología
 
+Bajo un sistema de invernadero se asignaron aleatoriamente 60 lisímetros de drenaje para estudiar el impacto de la salinidad en la absorción de nitrógeno en cultivos de cebolla, con niveles de 0.9 y 4 dS/m en el agua de riego, donde evaluaron seis concentraciones de nitrógeno (0%, 25%, 50%, 75%, 100% y 125%). Cabe destacar que el Ministerio de Agricultura recomienda el tratamiento 5 con 100% de nitrógeno para la fertilización, sin embargo, este tratamiento no toma en cuenta los cambios en la absorción afectados por la salinidad.
 
-
-# Methods
-
-
-
-# Results
+# Resultados
 
 
 ## Nitrogen 
@@ -90,12 +114,14 @@ knitr::include_graphics("wpw_box.png")
 
 
 
-# Conclusion
+# Discusión
 
-Try `posterdown` out! Hopefully you like it!
+La cebolla es considerada altamente sensible a la salinidad, posee un umbral de CE en 1,2 dS/m (García et al., 2015), por tanto, las altas concentraciones de N y los diferentes niveles de salinidad del agua comprometen los rendimientos del cultivo al igual que Sperling et al., (2019) se observó que los niveles altos de nitrógeno pueden obstaculizar la transpiración y la fotosíntesis de las plantas. Los altos niveles de salinidad en el agua no solo disminuyen la absorción de nutrientes sino también generan lixiviación de nitrógeno al medio ambiente (Shenker et al., 2003).  
 
-```{r, include=FALSE}
-knitr::write_bib(c('knitr','rmarkdown','posterdown','pagedown'), 'packages.bib')
-```
+
 
 # References
+
+```{r echo=FALSE}
+knitr::write_bib(c('knitr','rmarkdown','posterdown','pagedown'),'packages.bib')
+```

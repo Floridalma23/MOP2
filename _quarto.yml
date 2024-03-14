@@ -1,0 +1,38 @@
+project:
+  type: book
+
+lang: es 
+language: es.yml
+
+book:
+  title: "Análisis de Datos en Agricultura con R y RStudio"
+  author: "Oswaldo Navarrete Carreño"
+  chapters:
+    - index.qmd
+    - intro.qmd
+    - 01-concepts.qmd
+    - 02-estdesc.qmd
+    - 03-distr.qmd
+    - 04-sampling.qmd
+    - 05-icph.qmd
+    - 06-regresion.qmd
+    - 07-DOE.qmd
+    - references.qmd
+
+
+bibliography: references.bib
+csl: apanoa.csl
+
+format:
+  html:
+    theme: earth.scss
+    toc-depth: 4
+  
+  pdf:
+    documentclass: scrbook
+    papersize: a5paper
+
+  
+
+editor: source
+
